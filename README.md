@@ -3,7 +3,7 @@ Bindings for the Hell Let Loose RCON tool written purely in Go.
 
 `import "github.com/verocity-gaming/rcon"`
 
-# Maps
+# Client
 
 ## Connect to a server
 ```
@@ -13,6 +13,8 @@ if err != nil {
 }
 defer c.Close()
 ```
+
+# Maps
 
 ## Get the current map
 ```
