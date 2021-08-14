@@ -1,5 +1,5 @@
 # rcon
-Go bindings for the HLL RCON tool
+Bindings for the Hell Let Loose RCON tool written purely in Go.
 
 # Connect to a server
 ```
