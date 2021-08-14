@@ -3,7 +3,9 @@ Bindings for the Hell Let Loose RCON tool written purely in Go.
 
 `import "github.com/verocity-gaming/rcon"`
 
-# Connect to a server
+# Maps
+
+## Connect to a server
 ```
 c, err := rcon.New(addr, password)
 if err != nil {
@@ -12,7 +14,7 @@ if err != nil {
 defer c.Close()
 ```
 
-# Get the current map
+## Get the current map
 ```
 m, err := c.Map()
 if err != nil {
@@ -22,7 +24,7 @@ if err != nil {
 println(m.Location, m.Type, m.Side)
 ```
 
-# Set the current map
+## Set the current map
 ```
 err = c.SetMap(rcon.MapCarentanOffensiveUS)
 if err != nil {
@@ -30,7 +32,7 @@ if err != nil {
 }
 ```
 
-# Get the current map rotation
+## Get the current map rotation
 ```
 r, err := c.Rotation()
 if err != nil {
