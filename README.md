@@ -1,6 +1,8 @@
 # rcon
 Bindings for the Hell Let Loose RCON tool written purely in Go.
 
+`import "github.com/verocity-gaming/rcon"`
+
 # Connect to a server
 ```
 c, err := rcon.New(addr, password)
