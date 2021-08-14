@@ -59,25 +59,39 @@ func (c *Conn) Map() (Map, error) {
 		return Map{}, err
 	}
 
-	args := strings.Split(name, "_")
-	if len(args) == 0 {
-		return Map{}, fmt.Errorf("unknown map name format for %s", name)
+	m := MapName(name)
+
+	return fromName(m), nil
+}
+
+// Rotation returns the current map rotation for a Conn.
+func (c *Conn) Rotation() ([]Map, error) {
+	err := c.send("rotlist")
+	if err != nil {
+		return nil, err
 	}
 
-	m := Map{
-		Location: location(args[0]),
-		MapName:  MapName(name),
+	result, err := c.read()
+	if err != nil {
+		return nil, err
 	}
 
-	switch len(args) {
-	case 2:
-		m.Type = "Warfare"
-	case 3:
-		m.Type = "Offensive"
-		m.Side = side(args[2])
+	if result == "FAIL" {
+		return nil, fmt.Errorf("failed to get map rotation")
 	}
 
-	return m, nil
+	maps := []Map{}
+	for _, name := range strings.Split(result, "\n") {
+		if name == "" {
+			continue
+		}
+
+		m := MapName(name)
+
+		maps = append(maps, fromName(m))
+	}
+
+	return maps, nil
 }
 
 // SetMap will change the current map in rotation for a Conn.
@@ -113,6 +127,30 @@ func (n MapName) String() string {
 	return string(n)
 }
 
+func fromName(n MapName) Map {
+	name := n.String()
+
+	args := strings.Split(name, "_")
+	if len(args) == 0 {
+		return Map{}
+	}
+
+	m := Map{
+		Location: location(args[0]),
+		MapName:  MapName(name),
+	}
+
+	switch len(args) {
+	case 2:
+		m.Type = "Warfare"
+	case 3:
+		m.Type = "Offensive"
+		m.Side = side(args[2])
+	}
+
+	return m
+}
+
 func location(name string) string {
 	switch name {
 	case "utahbeach":
@@ -124,7 +162,7 @@ func location(name string) string {
 	case "stmariedumont":
 		return "St. Marie Du Mont"
 	case "kursk":
-		return "kursk"
+		return "Kursk"
 	case "stmereeglise":
 		return "St. Mere Eglise"
 	case "carentan":
@@ -151,6 +189,6 @@ func side(name string) string {
 	case "rus":
 		return "Russia"
 	default:
-		return strings.Title(name)
+		return ""
 	}
 }
