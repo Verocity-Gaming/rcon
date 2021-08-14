@@ -3,7 +3,7 @@ Go bindings for the HLL RCON tool
 
 # Connect to a server
 ```
-c, err := rcon.New("176.57.165.8:38016", "c78d881")
+c, err := rcon.New(addr, password)
 if err != nil {
 	panic(err)
 }
