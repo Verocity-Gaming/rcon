@@ -1,6 +1,9 @@
 # rcon
 Bindings for the Hell Let Loose RCON tool written purely in Go.
 
+This project is constructed to act like a third-party library for other applications. These might include a REST server, a command line interface, etc.
+
+
 `import "github.com/verocity-gaming/rcon"`
 
 # Client
@@ -43,5 +46,29 @@ if err != nil {
 
 for _, m := range r {
 	println(m.String())
+}
+```
+
+## Players
+```
+p, err := c.Players()
+if err != nil {
+	panic(err)
+}
+
+for _, player := range p {
+	println(player.String())
+}
+```
+
+## VIPs
+```
+v, err := c.VIPs()
+if err != nil {
+	panic(err)
+}
+
+for _, vip := range v {
+	println(vip.String())
 }
 ```

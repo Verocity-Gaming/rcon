@@ -49,42 +49,30 @@ const (
 
 // Map returns the current map in rotation for a Conn.
 func (c *Conn) Map() (Map, error) {
-	err := c.send("get map")
+	result, err := c.send("get", "map")
 	if err != nil {
-		return Map{}, err
+		return Map{}, fmt.Errorf("failed to get current map: %v", err)
 	}
 
-	name, err := c.read()
-	if err != nil {
-		return Map{}, err
-	}
-
-	return fromString(name), nil
+	return mapFromString(result), nil
 }
 
 // Maps returns all possible maps that can be in rotation for a Conn.
 func (c *Conn) Maps() ([]Map, error) {
-	err := c.send("get mapsforrotation")
+	result, err := c.send("get", "mapsforrotation")
 	if err != nil {
-		return nil, err
-	}
-
-	result, err := c.read()
-	if err != nil {
-		return nil, err
-	}
-
-	if result == "FAIL" {
-		return nil, fmt.Errorf("failed to get maps for rotation")
+		return nil, fmt.Errorf("failed to get maps for rotation: %v", err)
 	}
 
 	maps := []Map{}
-	for _, name := range strings.Split(result, "\n") {
-		if name == "" {
-			continue
-		}
 
-		maps = append(maps, fromString(name))
+	args := strings.Split(result, "\t")
+	if len(args) == 0 {
+		return nil, fmt.Errorf("failed to parse information for rotated maps")
+	}
+
+	for _, name := range args[1 : len(args)-1] {
+		maps = append(maps, mapFromString(name))
 	}
 
 	return maps, nil
@@ -92,27 +80,19 @@ func (c *Conn) Maps() ([]Map, error) {
 
 // Rotation returns the current map rotation for a Conn.
 func (c *Conn) Rotation() ([]Map, error) {
-	err := c.send("rotlist")
+	result, err := c.send("rotlist")
 	if err != nil {
-		return nil, err
-	}
-
-	result, err := c.read()
-	if err != nil {
-		return nil, err
-	}
-
-	if result == "FAIL" {
-		return nil, fmt.Errorf("failed to get map rotation")
+		return nil, fmt.Errorf("failed to get map rotation: %v", err)
 	}
 
 	maps := []Map{}
+
 	for _, name := range strings.Split(result, "\n") {
 		if name == "" {
 			continue
 		}
 
-		maps = append(maps, fromString(name))
+		maps = append(maps, mapFromString(name))
 	}
 
 	return maps, nil
@@ -120,18 +100,9 @@ func (c *Conn) Rotation() ([]Map, error) {
 
 // RotationAdd adds a map to the current rotation for a Conn.
 func (c *Conn) RotationAdd(n MapName) error {
-	err := c.send("rotadd " + n.String())
+	_, err := c.send("rotadd", n.String())
 	if err != nil {
-		return err
-	}
-
-	result, err := c.read()
-	if err != nil {
-		return err
-	}
-
-	if result == "FAIL" {
-		return fmt.Errorf("failed to add map to rotation")
+		return fmt.Errorf("failed to add map to rotation: %v", err)
 	}
 
 	return nil
@@ -139,18 +110,9 @@ func (c *Conn) RotationAdd(n MapName) error {
 
 // RotationAdd adds a map to the current rotation for a Conn.
 func (c *Conn) RotationRemove(n MapName) error {
-	err := c.send("rotdel " + n.String())
+	_, err := c.send("rotdel", n.String())
 	if err != nil {
-		return err
-	}
-
-	result, err := c.read()
-	if err != nil {
-		return err
-	}
-
-	if result == "FAIL" {
-		return fmt.Errorf("failed to add map to rotation")
+		return fmt.Errorf("failed to add map to rotation: %v", err)
 	}
 
 	return nil
@@ -158,18 +120,9 @@ func (c *Conn) RotationRemove(n MapName) error {
 
 // SetMap will change the current map in rotation for a Conn.
 func (c *Conn) SetMap(n MapName) error {
-	err := c.send("map " + n.String())
+	_, err := c.send("map", n.String())
 	if err != nil {
-		return err
-	}
-
-	result, err := c.read()
-	if err != nil {
-		return err
-	}
-
-	if result == "FAIL" {
-		return fmt.Errorf("failed to set map for %s", n)
+		return fmt.Errorf("failed to set map as %s: %v", n, err)
 	}
 
 	return nil
@@ -189,11 +142,11 @@ func (n MapName) String() string {
 	return string(n)
 }
 
-func fromString(s string) Map {
-	return fromName(MapName(s))
+func mapFromString(s string) Map {
+	return mapFromName(MapName(s))
 }
 
-func fromName(n MapName) Map {
+func mapFromName(n MapName) Map {
 	name := n.String()
 
 	args := strings.Split(name, "_")
