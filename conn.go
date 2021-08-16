@@ -92,6 +92,21 @@ func (c *Conn) Close() error {
 	return nil
 }
 
+// Send will send a list of commands to a server and return the response.
+// This call should only be made when another server function is not explicit.
+func (c *Conn) Send(cmds ...string) (string, error) {
+	switch s := c.pool.Get().(type) {
+	case error:
+		return "", s
+	case *session:
+		defer c.pool.Put(s)
+
+		return s.send(cmds...)
+	}
+
+	return "", fmt.Errorf("an unknown error has occured")
+}
+
 func (c *Conn) send(cmds ...string) (string, error) {
 	switch s := c.pool.Get().(type) {
 	case error:

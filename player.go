@@ -21,7 +21,7 @@ type Ban struct {
 	time.Time
 }
 
-func (c *Conn) TemporarilyBanned() ([]Ban, error) {
+func (c *Conn) BannedTemporarily() ([]Ban, error) {
 	result, err := c.send("get", "tempbans")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get permanent bans: %v", err)
@@ -55,7 +55,7 @@ func (b Ban) String() string {
 	return fmt.Sprintf("%s [%s] from: %s until %s by: %s", b.Player.String(), b.Reason, b.Time.Format(time.Stamp), time.Now().Add(b.Duration).Format(time.Stamp), b.Admin)
 }
 
-func (c *Conn) PermanentlyBanned() ([]Ban, error) {
+func (c *Conn) BannedPermanently() ([]Ban, error) {
 	result, err := c.send("get", "permabans")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get permanent bans: %v", err)
