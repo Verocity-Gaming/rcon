@@ -213,6 +213,16 @@ func (c *Conn) VoteKick() (bool, error) {
 	return result == "on", nil
 }
 
+// VoteKickThreshold will return the current votekick threshold
+func (c *Conn) VoteKickThreshold() (string, error) {
+	result, err := c.send("get", "votekickthreshold")
+	if err != nil {
+		return "", fmt.Errorf("failed to get vote kick threshold: %v", err)
+	}
+
+	return result, nil
+}
+
 // SetVoteKick will update the ability for players to vote kick eachother in a server.
 func (c *Conn) SetVoteKick(enabled bool) error {
 	_, err := c.send("setvotekickenabled", map[bool]string{true: "on", false: "off"}[enabled]) // Ternary!
@@ -223,7 +233,7 @@ func (c *Conn) SetVoteKick(enabled bool) error {
 	return nil
 }
 
-// SetVoteKickThreshold .
+// SetVoteKickThreshold will update the current votekick thresholds.
 func (c *Conn) SetVoteKickThreshold(pairs ...VoteKickThreshold) error {
 	threshold := ""
 	for i, pair := range pairs {
