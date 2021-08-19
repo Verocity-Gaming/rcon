@@ -153,6 +153,21 @@ func (c *Conn) SetQueueLength(length int) error {
 	return nil
 }
 
+// QueueLength will return the current number of players allowed to queue.
+func (c *Conn) QueueLength() (int, error) {
+	result, err := c.send("get", "maxqueuedplayers")
+	if err != nil {
+		return -1, fmt.Errorf("failed to get queue length: %v", err)
+	}
+
+	q, err := strconv.Atoi(result)
+	if err != nil {
+		return -1, fmt.Errorf("failed to parse queue length configuration: %v", err)
+	}
+
+	return q, nil
+}
+
 // SetBroadcast will update the current broadcast message.
 func (c *Conn) SetBroadcast(message string) error {
 	_, err := c.send("broadcast", q(message))

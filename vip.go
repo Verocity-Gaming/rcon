@@ -21,6 +21,8 @@ func (c *Conn) SetVIPSlots(slots int) error {
 	return nil
 }
 
+var x = make(chan bool)
+
 // Admins will return a slice of active Admins.
 func (c *Conn) VIPs() ([]VIP, error) {
 	result, err := c.send("get", "vipids")
@@ -40,8 +42,8 @@ func (c *Conn) VIPs() ([]VIP, error) {
 
 		vips = append(vips, VIP{
 			Player: Player{
-				Name: strings.Trim(strings.Trim(nameID[1], " "), `"`),
-				ID64: strings.Trim(nameID[0], " "),
+				Name: strings.Trim(strings.TrimSpace(nameID[1]), `"`),
+				ID64: strings.TrimSpace(nameID[0]),
 			},
 		})
 	}

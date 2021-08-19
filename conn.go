@@ -65,9 +65,11 @@ func New(addr string, password string) (*Conn, error) {
 		},
 	}
 
-	switch err := c.pool.Get().(type) {
+	switch s := c.pool.Get().(type) {
 	case error:
-		return nil, err
+		return nil, s
+	case *session:
+		c.pool.Put(s)
 	}
 
 	return c, nil
@@ -93,18 +95,9 @@ func (c *Conn) Close() error {
 }
 
 // Send will send a list of commands to a server and return the response.
-// This call should only be made when another server function is not explicit.
+// This should only be used when another server function is not explicity defined or implemented.
 func (c *Conn) Send(cmds ...string) (string, error) {
-	switch s := c.pool.Get().(type) {
-	case error:
-		return "", s
-	case *session:
-		defer c.pool.Put(s)
-
-		return s.send(cmds...)
-	}
-
-	return "", fmt.Errorf("an unknown error has occured")
+	return c.send(cmds...)
 }
 
 func (c *Conn) send(cmds ...string) (string, error) {
@@ -127,7 +120,7 @@ func (s *session) login(password string) error {
 	}
 
 	if result != "SUCCESS" {
-		return fmt.Errorf("rcon authentication failed for %s and password %x", s.RemoteAddr(), s.key)
+		return fmt.Errorf("rcon authentication failed for %s with key %x", s.RemoteAddr(), s.key)
 	}
 
 	return nil

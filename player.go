@@ -162,8 +162,8 @@ func (c *Conn) Player(username string) (Player, error) {
 	}
 
 	return Player{
-		Name: strings.Trim(name[1], " "),
-		ID64: strings.Trim(id[1], " "),
+		Name: strings.TrimSpace(name[1]),
+		ID64: strings.TrimSpace(id[1]),
 	}, nil
 }
 
@@ -185,8 +185,8 @@ func (c *Conn) Players() ([]Player, error) {
 		nameID := strings.Split(p, ":")
 
 		players = append(players, Player{
-			Name: strings.Trim(nameID[0], " "),
-			ID64: strings.Trim(nameID[1], " "),
+			Name: strings.TrimSpace(nameID[0]),
+			ID64: strings.TrimSpace(nameID[1]),
 		})
 	}
 
